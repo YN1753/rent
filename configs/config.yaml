@@ -1,0 +1,8 @@
+database:
+  driver: mysql
+  source: root:tp,.39w?%k@tcp(localhost:3306)/rent?parseTime=true
+server:
+  port: 8080
+  mode: debug
+jwt:
+  secret: sjdkljwaiknskdlnaknwkdnaksndsa
