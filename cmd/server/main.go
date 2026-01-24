@@ -10,11 +10,12 @@ import (
 
 func main() {
 	config.InitConfig()
-	db.InitMySQL()
+	mysqlDB := db.InitMySQL()
+	redisDB := db.InitRedis()
 	r := gin.Default()
-	router.InitRouter(r)
-	r.Run(":8080")
 	r.Use(CorsMiddleware())
+	router.InitRouter(r, mysqlDB, redisDB)
+	r.Run(":8080")
 }
 func CorsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {

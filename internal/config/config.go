@@ -6,9 +6,10 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	JWT      JWTConfig
+	Server ServerConfig
+	Mysql  MysqlConfig
+	JWT    JWTConfig
+	Redis  RedisConfig
 }
 
 type ServerConfig struct {
@@ -16,9 +17,15 @@ type ServerConfig struct {
 	Mode string
 }
 
-type DatabaseConfig struct {
+type MysqlConfig struct {
 	Driver string
 	Source string
+}
+
+type RedisConfig struct {
+	Addr     string
+	Password string
+	Db       int
 }
 
 var Cfg Config
