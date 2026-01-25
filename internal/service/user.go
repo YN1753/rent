@@ -1,22 +1,30 @@
 package service
 
 import (
+	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 	"log"
 	"rent/internal/config"
 	"rent/internal/model"
 	"rent/internal/repository"
 	"rent/pkg/utils"
+	"strconv"
+	"time"
 )
 
 type UserService struct {
 	UserRepo *repository.UserRepository
+	Redis    *redis.Client
 }
 
-func NewUserService() *UserService {
+func NewUserService(db *gorm.DB, rdb *redis.Client) *UserService {
 	return &UserService{
-		UserRepo: repository.NewUserRepository(),
+		UserRepo: repository.NewUserRepository(db),
+		Redis:    rdb,
 	}
 }
 
@@ -80,4 +88,37 @@ func (u *UserService) GetUserInfo(param interface{}) (error, model.UserInfo) {
 		return err, user
 	}
 	return nil, user
+}
+
+func (u *UserService) AuthCode(code string, id int) error {
+	ctx := context.Background()
+	result, err := u.Redis.Get(ctx, strconv.Itoa(id)).Result()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	if code == result {
+		u.Redis.Del(ctx, strconv.Itoa(id))
+		return nil
+	} else {
+		return errors.New("验证码错误")
+	}
+}
+
+func (u *UserService) GenCode(id int) (string, error) {
+	charset := "0123456789"
+	code := make([]byte, 6)
+	n, err := rand.Read(code)
+	if err != nil || n != 6 {
+		return "", errors.New("生成验证码失败")
+	}
+	for i := range code {
+		code[i] = charset[code[i]%byte(len(charset))]
+	}
+	ctx := context.Background()
+	u.Redis.Set(ctx, strconv.Itoa(id), string(code), 300*time.Second)
+	fmt.Println(id)
+	result, _ := u.Redis.Get(ctx, strconv.Itoa(id)).Result()
+	fmt.Println(result)
+	return string(code), nil
 }

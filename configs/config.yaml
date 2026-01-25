@@ -1,4 +1,4 @@
-database:
+mysql:
   driver: mysql
   source: root:tp,.39w?%k@tcp(localhost:3306)/rent?parseTime=true
 server:
@@ -6,3 +6,7 @@ server:
   mode: debug
 jwt:
   secret: sjdkljwaiknskdlnaknwkdnaksndsa
+redis:
+  addr: localhost:6379
+  password: ""
+  db: 0
