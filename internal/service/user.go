@@ -5,15 +5,15 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
 	"log"
 	"rent/internal/config"
 	"rent/internal/model"
 	"rent/internal/repository"
 	"rent/pkg/utils"
-	"strconv"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -29,9 +29,9 @@ func NewUserService(db *gorm.DB, rdb *redis.Client) *UserService {
 }
 
 func (u *UserService) Register(user model.User) (error, interface{}) {
-	if user.Username == "" || user.Password == "" || user.Phone == "" {
-		fmt.Println("用户名、密码、手机号不能为空")
-		return errors.New("用户名、密码、手机号不能为空"), nil
+	if user.Username == "" || user.Password == "" || user.Email == "" {
+		fmt.Println("用户名、密码、邮箱不能为空")
+		return errors.New("用户名、密码、邮箱不能为空"), nil
 	}
 	// 检查用户名是否已存在
 	existingUser, err := u.UserRepo.ExistsByUsername(user.Username)
@@ -56,12 +56,12 @@ func (u *UserService) Register(user model.User) (error, interface{}) {
 func (u *UserService) Login(user model.User) (error, string) {
 	// 检查用户名是否存在
 	var token string
-	existingUser, _ := u.UserRepo.ExistsByPhone(user.Phone)
+	existingUser, _ := u.UserRepo.ExistsByPhone(user.Email)
 	if !existingUser {
 		return errors.New("用户名或密码错误"), token
 	}
 	// 获取用户密码
-	hashedPassword, err := u.UserRepo.GetPasswordByPhone(user.Phone)
+	hashedPassword, err := u.UserRepo.GetPasswordByEmail(user.Email)
 	fmt.Println(hashedPassword)
 	if err != nil {
 		return errors.New("获取密码失败"), token
@@ -72,7 +72,7 @@ func (u *UserService) Login(user model.User) (error, string) {
 		return errors.New("用户名或密码错误"), token
 	}
 	// 生成token
-	users, err := u.UserRepo.GetUserInfo(user.Phone)
+	users, err := u.UserRepo.GetUserInfo(user.Email)
 	token, err = utils.GenerateToken(users, config.Cfg.JWT.Secret)
 	if err != nil {
 		fmt.Println("生成token失败", err)
@@ -90,35 +90,39 @@ func (u *UserService) GetUserInfo(param interface{}) (error, model.UserInfo) {
 	return nil, user
 }
 
-func (u *UserService) AuthCode(code string, id int) error {
+func (u *UserService) AuthCode(code string, email string) error {
 	ctx := context.Background()
-	result, err := u.Redis.Get(ctx, strconv.Itoa(id)).Result()
+	result, err := u.Redis.Get(ctx, email).Result()
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 	if code == result {
-		u.Redis.Del(ctx, strconv.Itoa(id))
+		u.Redis.Del(ctx, email)
 		return nil
 	} else {
 		return errors.New("验证码错误")
 	}
 }
 
-func (u *UserService) GenCode(id int) (string, error) {
+func (u *UserService) GenCode(email string) error {
 	charset := "0123456789"
 	code := make([]byte, 6)
 	n, err := rand.Read(code)
 	if err != nil || n != 6 {
-		return "", errors.New("生成验证码失败")
+		return errors.New("生成验证码失败")
 	}
 	for i := range code {
 		code[i] = charset[code[i]%byte(len(charset))]
 	}
 	ctx := context.Background()
-	u.Redis.Set(ctx, strconv.Itoa(id), string(code), 300*time.Second)
-	fmt.Println(id)
-	result, _ := u.Redis.Get(ctx, strconv.Itoa(id)).Result()
+	err = utils.SendEmail(email, "验证码", "这是你的验证码"+string(code)+",有效期为5分钟")
+	if err != nil {
+		return errors.New("发送验证码失败")
+	}
+	u.Redis.Set(ctx, email, string(code), 300*time.Second)
+	fmt.Println(email)
+	result, _ := u.Redis.Get(ctx, email).Result()
 	fmt.Println(result)
-	return string(code), nil
+	return nil
 }
