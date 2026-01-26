@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"rent/internal/config"
 
 	"github.com/wneessen/go-mail"
@@ -9,11 +8,9 @@ import (
 
 func SendEmail(to string, subject string, body string) error {
 	m := mail.NewMsg()
-	fmt.Println(config.Cfg.Email)
 	if err := m.From(config.Cfg.Email.Username); err != nil {
 		return err
 	}
-	fmt.Println(to)
 	if err := m.To(to); err != nil {
 		return err
 	}

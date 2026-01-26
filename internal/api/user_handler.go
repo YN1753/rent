@@ -72,7 +72,7 @@ func (u *UserHandler) GenAuthCode(c *gin.Context) {
 		common.Error(c, 400, "参数错误")
 		return
 	}
-	err := u.UserService.GenCode(email.Email)
+	err := u.UserService.GenCode(c, email.Email)
 	if err != nil {
 		common.Error(c, 400, err.Error())
 		return

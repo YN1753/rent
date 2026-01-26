@@ -12,6 +12,7 @@ import (
 	"rent/pkg/utils"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -30,25 +31,25 @@ func NewUserService(db *gorm.DB, rdb *redis.Client) *UserService {
 
 func (u *UserService) Register(user model.User) (error, interface{}) {
 	if user.Username == "" || user.Password == "" || user.Email == "" {
-		fmt.Println("用户名、密码、邮箱不能为空")
+		log.Println("用户名、密码、邮箱不能为空")
 		return errors.New("用户名、密码、邮箱不能为空"), nil
 	}
-	// 检查用户名是否已存在
-	existingUser, err := u.UserRepo.ExistsByUsername(user.Username)
-	if existingUser {
-		fmt.Println("用户名已存在", err)
-		return errors.New("用户名已存在"), nil
+	// 检查邮箱是否已存在
+	existingEmail, err := u.UserRepo.ExistsByEmail(user.Email)
+	if existingEmail {
+		log.Println("邮箱已存在", err)
+		return errors.New("邮箱已存在"), nil
 	}
 	// 对密码进行加密
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
-		fmt.Println("密码加密失败", err)
+		log.Println("密码加密失败", err)
 		return errors.New("密码加密失败"), nil
 	}
 	user.Password = hashedPassword
 	err = u.UserRepo.Register(user)
 	if err != nil {
-		fmt.Println("数据库插入失败", err)
+		log.Println("数据库插入失败", err)
 		return err, nil
 	}
 	return nil, nil
@@ -56,26 +57,25 @@ func (u *UserService) Register(user model.User) (error, interface{}) {
 func (u *UserService) Login(user model.User) (error, string) {
 	// 检查用户名是否存在
 	var token string
-	existingUser, _ := u.UserRepo.ExistsByPhone(user.Email)
+	existingUser, _ := u.UserRepo.ExistsByEmail(user.Email)
 	if !existingUser {
 		return errors.New("用户名或密码错误"), token
 	}
 	// 获取用户密码
 	hashedPassword, err := u.UserRepo.GetPasswordByEmail(user.Email)
-	fmt.Println(hashedPassword)
 	if err != nil {
+		log.Println("获取密码失败", err)
 		return errors.New("获取密码失败"), token
 	}
 	// 验证密码
 	if utils.CheckPassword(user.Password, hashedPassword) {
-		fmt.Println("密码错误")
 		return errors.New("用户名或密码错误"), token
 	}
 	// 生成token
 	users, err := u.UserRepo.GetUserInfo(user.Email)
 	token, err = utils.GenerateToken(users, config.Cfg.JWT.Secret)
 	if err != nil {
-		fmt.Println("生成token失败", err)
+		log.Println("生成token失败", err)
 		return errors.New("生成token失败"), token
 	}
 	return nil, token
@@ -85,6 +85,7 @@ func (u *UserService) GetUserInfo(param interface{}) (error, model.UserInfo) {
 	user, err := u.UserRepo.GetUserInfo(param)
 	log.Println(user)
 	if err != nil {
+		log.Println("获取用户信息失败", err)
 		return err, user
 	}
 	return nil, user
@@ -105,7 +106,18 @@ func (u *UserService) AuthCode(code string, email string) error {
 	}
 }
 
-func (u *UserService) GenCode(email string) error {
+func (u *UserService) GenCode(c *gin.Context, email string) error {
+	username, ok := c.Get("username")
+	if !ok {
+		return errors.New("获取用户名失败")
+	}
+	emailExist, err := u.UserRepo.GetEmailByUsername(username.(string))
+	if err != nil {
+		return errors.New("获取邮箱失败")
+	}
+	if emailExist != email {
+		return errors.New("邮箱错误")
+	}
 	charset := "0123456789"
 	code := make([]byte, 6)
 	n, err := rand.Read(code)
@@ -121,8 +133,5 @@ func (u *UserService) GenCode(email string) error {
 		return errors.New("发送验证码失败")
 	}
 	u.Redis.Set(ctx, email, string(code), 300*time.Second)
-	fmt.Println(email)
-	result, _ := u.Redis.Get(ctx, email).Result()
-	fmt.Println(result)
 	return nil
 }

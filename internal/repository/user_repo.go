@@ -67,11 +67,20 @@ func (u *UserRepository) ExistsByUsername(username string) (bool, error) {
 	return true, nil
 }
 
-func (u *UserRepository) ExistsByPhone(email string) (bool, error) {
+func (u *UserRepository) ExistsByEmail(email string) (bool, error) {
 	var user model.User
 	err := u.DB.Where("email =?", email).First(&user).Error
 	if err != nil {
 		return false, nil
 	}
 	return true, nil
+}
+
+func (u *UserRepository) GetEmailByUsername(username string) (string, error) {
+	var user model.User
+	err := u.DB.Where("username =?", username).First(&user).Error
+	if err != nil {
+		return "", err
+	}
+	return user.Email, nil
 }
