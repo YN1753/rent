@@ -97,3 +97,12 @@ func (u *UserHandler) AuthCode(c *gin.Context) {
 	}
 	common.Success(c, 200, "验证成功", nil)
 }
+
+func (u *UserHandler) UploadAvatar(c *gin.Context) {
+	err := u.UserService.UploadAvatar(c)
+	if err != nil {
+		common.Error(c, 500, err.Error())
+		return
+	}
+	common.Success(c, 200, "上传头像成功", nil)
+}

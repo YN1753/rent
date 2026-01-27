@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"rent/internal/model"
+	"rent/internal/oss"
 
 	"gorm.io/gorm"
 )
@@ -35,11 +36,22 @@ func (u *UserRepository) GetUserInfo(param interface{}) (model.UserInfo, error) 
 	var user model.UserInfo
 	if email, ok := param.(string); ok {
 		err := u.DB.Where("email =?", email).First(&user).Error
+		signurl, err := oss.CreateSignUrl(user.Avatar)
+		if err != nil {
+			return user, err
+		}
+		user.Avatar = signurl[0]
 		return user, err
 	} else if id, ok := param.(int); ok {
 		err := u.DB.Where("id =?", id).First(&user).Error
+		signurl, err := oss.CreateSignUrl(user.Avatar)
+		if err != nil {
+			return user, err
+		}
+		user.Avatar = signurl[0]
 		return user, err
 	}
+
 	return user, errors.New("参数错误")
 }
 

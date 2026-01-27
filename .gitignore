@@ -1,0 +1,4 @@
+.env
+/configs
+/tmp
+/internal/config

@@ -1,11 +1,12 @@
 package router
 
 import (
+	"rent/internal/api"
+	"rent/internal/middleware"
+
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
-	"rent/internal/api"
-	"rent/internal/middleware"
 )
 
 func UserRouter(c *gin.Engine, db *gorm.DB, rdb *redis.Client) {
@@ -20,6 +21,7 @@ func UserRouter(c *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		userRouterAuth.Use(middleware.AuthMiddleware())
 		userRouterAuth.GET("/info", userHandler.GetUserInfo)
 		userRouterAuth.GET("/gencode", userHandler.GenAuthCode)
-		userRouterAuth.POST("authcode", userHandler.AuthCode)
+		userRouterAuth.POST("/authcode", userHandler.AuthCode)
+		userRouterAuth.POST("/uploadavatar", userHandler.UploadAvatar)
 	}
 }

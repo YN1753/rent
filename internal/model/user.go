@@ -7,6 +7,7 @@ type User struct {
 	Username  string    `json:"username" gorm:"type:varchar(50);uniqueIndex;not null"`
 	Password  string    `json:"password" gorm:"type:varchar(255);not null"`
 	Email     string    `json:"email" gorm:"type:varchar(100);uniqueIndex;not null"`
+	Avatar    string    `json:"avatar" gorm:"type:varchar(255);not null"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
@@ -15,6 +16,7 @@ type UserInfo struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 	Phone    string `json:"phone"`
+	Avatar   string `json:"avatar"`
 }
 
 func (UserInfo) TableName() string {

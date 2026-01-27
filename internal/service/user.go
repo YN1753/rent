@@ -6,8 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"path/filepath"
 	"rent/internal/config"
+	"rent/internal/db"
 	"rent/internal/model"
+	"rent/internal/oss"
 	"rent/internal/repository"
 	"rent/pkg/utils"
 	"time"
@@ -134,4 +137,35 @@ func (u *UserService) GenCode(c *gin.Context, email string) error {
 	}
 	u.Redis.Set(ctx, email, string(code), 300*time.Second)
 	return nil
+}
+
+func (u *UserService) UploadAvatar(c *gin.Context) error {
+
+	id := c.GetString("id")
+	name := c.GetString("username")
+	file, err := c.FormFile("img")
+	ext := filepath.Ext(file.Filename)
+	objectKey := "avatar/" + name + id + ext
+	if err != nil {
+		return errors.New("获取图片失败")
+	}
+	err = oss.UploadFile(objectKey, file)
+	if err != nil {
+		return err
+	}
+	result := db.DB.Table("users").Where("username=?", name).Update("avatar", objectKey)
+	if result.RowsAffected == 0 {
+		return errors.New("更新数据库失败")
+	}
+	return nil
+}
+func (u *UserService) GetAvatar(c *gin.Context) (string, error) {
+	name := c.GetString("username")
+	var objectKey string
+	db.DB.Table("users").Where("username=?", name).Select("avatar").First(&objectKey)
+	signurl, err := oss.CreateSignUrl(objectKey)
+	if err != nil {
+		return "", err
+	}
+	return signurl[0], nil
 }
