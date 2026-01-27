@@ -2,12 +2,13 @@ package api
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
 	"rent/internal/model"
 	"rent/internal/service"
 	"rent/pkg/common"
+
+	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
 type UserHandler struct {
@@ -63,26 +64,33 @@ func (u *UserHandler) GetUserInfo(c *gin.Context) {
 }
 
 func (u *UserHandler) GenAuthCode(c *gin.Context) {
-	id, _ := c.Get("id")
-	code, err := u.UserService.GenCode(id.(int))
+	type Email struct {
+		Email string `json:"email"`
+	}
+	var email Email
+	if err := c.ShouldBindJSON(&email); err != nil {
+		common.Error(c, 400, "参数错误")
+		return
+	}
+	err := u.UserService.GenCode(c, email.Email)
 	if err != nil {
 		common.Error(c, 400, err.Error())
 		return
 	}
-	common.Success(c, 200, "发送成功", code)
+	common.Success(c, 200, "发送成功", nil)
 }
 
 func (u *UserHandler) AuthCode(c *gin.Context) {
 	type Code struct {
-		Code string
+		Email string `json:"email"`
+		Code  string `json:"code"`
 	}
-	id, _ := c.Get("id")
 	var code Code
 	if err := c.ShouldBindJSON(&code); err != nil {
 		common.Error(c, 400, "参数错误")
 		return
 	}
-	err := u.UserService.AuthCode(code.Code, id.(int))
+	err := u.UserService.AuthCode(code.Code, code.Email)
 	if err != nil {
 		common.Error(c, 400, "验证码错误")
 		return

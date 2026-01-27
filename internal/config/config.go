@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/spf13/viper"
 )
 
@@ -10,6 +11,7 @@ type Config struct {
 	Mysql  MysqlConfig
 	JWT    JWTConfig
 	Redis  RedisConfig
+	Email  EamilConfig
 }
 
 type ServerConfig struct {
@@ -26,6 +28,13 @@ type RedisConfig struct {
 	Addr     string
 	Password string
 	Db       int
+}
+
+type EamilConfig struct {
+	Port     int
+	Host     string
+	Username string
+	Password string
 }
 
 var Cfg Config

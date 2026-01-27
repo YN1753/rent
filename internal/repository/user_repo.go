@@ -2,9 +2,10 @@ package repository
 
 import (
 	"errors"
-	"gorm.io/gorm"
 	"log"
 	"rent/internal/model"
+
+	"gorm.io/gorm"
 )
 
 type UserRepository struct {
@@ -32,8 +33,8 @@ func (u *UserRepository) Register(user model.User) error {
 
 func (u *UserRepository) GetUserInfo(param interface{}) (model.UserInfo, error) {
 	var user model.UserInfo
-	if phone, ok := param.(string); ok {
-		err := u.DB.Where("phone =?", phone).First(&user).Error
+	if email, ok := param.(string); ok {
+		err := u.DB.Where("email =?", email).First(&user).Error
 		return user, err
 	} else if id, ok := param.(int); ok {
 		err := u.DB.Where("id =?", id).First(&user).Error
@@ -48,9 +49,9 @@ func (u *UserRepository) GetPasswordByUsername(username string) (string, error) 
 	return user.Password, err
 }
 
-func (u *UserRepository) GetPasswordByPhone(phone string) (string, error) {
+func (u *UserRepository) GetPasswordByEmail(email string) (string, error) {
 	var user model.User
-	err := u.DB.Select("password").Where("phone =?", phone).First(&user).Error
+	err := u.DB.Select("password").Where("email =?", email).First(&user).Error
 	if err != nil {
 		return "", err
 	}
@@ -66,11 +67,20 @@ func (u *UserRepository) ExistsByUsername(username string) (bool, error) {
 	return true, nil
 }
 
-func (u *UserRepository) ExistsByPhone(phone string) (bool, error) {
+func (u *UserRepository) ExistsByEmail(email string) (bool, error) {
 	var user model.User
-	err := u.DB.Where("phone =?", phone).First(&user).Error
+	err := u.DB.Where("email =?", email).First(&user).Error
 	if err != nil {
 		return false, nil
 	}
 	return true, nil
+}
+
+func (u *UserRepository) GetEmailByUsername(username string) (string, error) {
+	var user model.User
+	err := u.DB.Where("username =?", username).First(&user).Error
+	if err != nil {
+		return "", err
+	}
+	return user.Email, nil
 }
