@@ -2,10 +2,12 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"rent/internal/model"
 	"rent/internal/oss"
 
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
@@ -58,23 +60,35 @@ func (u *UserRepository) GetUserInfo(param interface{}) (model.UserInfo, error) 
 func (u *UserRepository) GetPasswordByUsername(username string) (string, error) {
 	var user model.User
 	err := u.DB.Where("username =?", username).First(&user).Error
-	return user.Password, err
+	if err != nil {
+		return "", errors.New("账号或密码错误")
+	}
+	return user.Password, nil
 }
 
 func (u *UserRepository) GetPasswordByEmail(email string) (string, error) {
 	var user model.User
 	err := u.DB.Select("password").Where("email =?", email).First(&user).Error
 	if err != nil {
-		return "", err
+		return "", errors.New("邮箱或密码错误")
 	}
 	return user.Password, nil
+}
+
+func (u *UserRepository) GetPassword(account string) (string, error) {
+	err := validator.New().Var(account, "required,email")
+	if err != nil {
+		return u.GetPasswordByUsername(account)
+	} else {
+		return u.GetPasswordByEmail(account)
+	}
 }
 
 func (u *UserRepository) ExistsByUsername(username string) (bool, error) {
 	var user model.User
 	err := u.DB.Where("username =?", username).First(&user).Error
 	if err != nil {
-		return false, nil
+		return false, errors.New("用户名或密码错误")
 	}
 	return true, nil
 }
@@ -83,9 +97,19 @@ func (u *UserRepository) ExistsByEmail(email string) (bool, error) {
 	var user model.User
 	err := u.DB.Where("email =?", email).First(&user).Error
 	if err != nil {
-		return false, nil
+		return false, errors.New("邮箱或密码错误")
 	}
 	return true, nil
+}
+
+func (u *UserRepository) Exists(account string) (bool, error) {
+	fmt.Println("account:", account)
+	err := validator.New().Var(account, "required,email")
+	if err != nil {
+		return u.ExistsByUsername(account)
+	} else {
+		return u.ExistsByEmail(account)
+	}
 }
 
 func (u *UserRepository) GetEmailByUsername(username string) (string, error) {

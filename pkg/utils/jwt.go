@@ -1,9 +1,10 @@
 package utils
 
 import (
-	"github.com/dgrijalva/jwt-go"
 	"rent/internal/model"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 type Claims struct {
