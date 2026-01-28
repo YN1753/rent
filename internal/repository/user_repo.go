@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"rent/internal/model"
-	"rent/internal/oss"
 
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
@@ -38,19 +37,15 @@ func (u *UserRepository) GetUserInfo(param interface{}) (model.UserInfo, error) 
 	var user model.UserInfo
 	if email, ok := param.(string); ok {
 		err := u.DB.Where("email =?", email).First(&user).Error
-		signurl, err := oss.CreateSignUrl(user.Avatar)
 		if err != nil {
 			return user, err
 		}
-		user.Avatar = signurl[0]
 		return user, err
 	} else if id, ok := param.(int); ok {
 		err := u.DB.Where("id =?", id).First(&user).Error
-		signurl, err := oss.CreateSignUrl(user.Avatar)
 		if err != nil {
 			return user, err
 		}
-		user.Avatar = signurl[0]
 		return user, err
 	}
 
@@ -119,4 +114,12 @@ func (u *UserRepository) GetEmailByUsername(username string) (string, error) {
 		return "", err
 	}
 	return user.Email, nil
+}
+
+func (u *UserRepository) UpdateAvatar(avatar string, id int) error {
+	err := u.DB.Table("users").Where("id=?", id).Update("avatar", avatar)
+	if err.Error != nil {
+		return errors.New("字段更新失败")
+	}
+	return nil
 }
