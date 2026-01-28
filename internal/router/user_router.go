@@ -23,5 +23,6 @@ func UserRouter(c *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		userRouterAuth.GET("/gencode", userHandler.GenAuthCode)
 		userRouterAuth.POST("/authcode", userHandler.AuthCode)
 		userRouterAuth.POST("/uploadavatar", userHandler.UploadAvatar)
+		userRouterAuth.POST("/logout", userHandler.Logout)
 	}
 }
