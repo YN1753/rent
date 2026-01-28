@@ -57,25 +57,25 @@ func (u *UserService) Register(user model.User) (error, interface{}) {
 	}
 	return nil, nil
 }
-func (u *UserService) Login(user model.User) (error, string) {
+func (u *UserService) Login(user model.LoginRequest) (error, string) {
 	// 检查用户名是否存在
 	var token string
-	existingUser, _ := u.UserRepo.ExistsByEmail(user.Email)
+	existingUser, err := u.UserRepo.Exists(user.Account)
 	if !existingUser {
-		return errors.New("用户名或密码错误"), token
+		return err, token
 	}
 	// 获取用户密码
-	hashedPassword, err := u.UserRepo.GetPasswordByEmail(user.Email)
+	hashedPassword, err := u.UserRepo.GetPassword(user.Account)
 	if err != nil {
 		log.Println("获取密码失败", err)
-		return errors.New("获取密码失败"), token
+		return err, token
 	}
 	// 验证密码
 	if utils.CheckPassword(user.Password, hashedPassword) {
-		return errors.New("用户名或密码错误"), token
+		return errors.New("账号或密码错误"), token
 	}
 	// 生成token
-	users, err := u.UserRepo.GetUserInfo(user.Email)
+	users, err := u.UserRepo.GetUserInfo(user.Account)
 	token, err = utils.GenerateToken(users, config.Cfg.JWT.Secret)
 	if err != nil {
 		log.Println("生成token失败", err)

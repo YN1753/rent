@@ -35,7 +35,7 @@ func (u *UserHandler) Register(c *gin.Context) {
 }
 
 func (u *UserHandler) Login(c *gin.Context) {
-	var user model.User
+	var user model.LoginRequest
 	if err := c.ShouldBindJSON(&user); err != nil {
 		common.Error(c, 400, "参数错误")
 		return
