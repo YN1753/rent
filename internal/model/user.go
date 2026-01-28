@@ -27,3 +27,8 @@ func (UserInfo) TableName() string {
 func (User) TableName() string {
 	return "users"
 }
+
+type LoginRequest struct {
+	Account  string `json:"account"`
+	Password string `json:"password"`
+}
