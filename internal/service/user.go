@@ -8,11 +8,11 @@ import (
 	"log"
 	"path/filepath"
 	"rent/internal/config"
-	"rent/internal/db"
 	"rent/internal/model"
 	"rent/internal/oss"
 	"rent/internal/repository"
 	"rent/pkg/utils"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -91,6 +91,11 @@ func (u *UserService) GetUserInfo(param interface{}) (error, model.UserInfo) {
 		log.Println("获取用户信息失败", err)
 		return err, user
 	}
+	signurl, err := oss.CreateSignUrl(user.Avatar)
+	if err != nil {
+		return err, user
+	}
+	user.Avatar = signurl[0]
 	return nil, user
 }
 
@@ -140,12 +145,11 @@ func (u *UserService) GenCode(c *gin.Context, email string) error {
 }
 
 func (u *UserService) UploadAvatar(c *gin.Context) error {
-
-	id := c.GetString("id")
+	id := c.GetInt("id")
 	name := c.GetString("username")
 	file, err := c.FormFile("img")
 	ext := filepath.Ext(file.Filename)
-	objectKey := "avatar/" + name + id + ext
+	objectKey := "avatar/" + name + strconv.Itoa(id) + ext
 	if err != nil {
 		return errors.New("获取图片失败")
 	}
@@ -153,19 +157,6 @@ func (u *UserService) UploadAvatar(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	result := db.DB.Table("users").Where("username=?", name).Update("avatar", objectKey)
-	if result.RowsAffected == 0 {
-		return errors.New("更新数据库失败")
-	}
-	return nil
-}
-func (u *UserService) GetAvatar(c *gin.Context) (string, error) {
-	name := c.GetString("username")
-	var objectKey string
-	db.DB.Table("users").Where("username=?", name).Select("avatar").First(&objectKey)
-	signurl, err := oss.CreateSignUrl(objectKey)
-	if err != nil {
-		return "", err
-	}
-	return signurl[0], nil
+	err = u.UserRepo.UpdateAvatar(objectKey, id)
+	return err
 }

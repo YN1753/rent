@@ -55,26 +55,23 @@ func UploadFile(objectKey string, file *multipart.FileHeader) error {
 		return errors.New("打开文件失败")
 	}
 	defer tempfile.Close()
-
 	ext := path.Ext(file.Filename)
-	if ext == ".jpg" || ext == "png" || ext == "jpeg" {
+	if ext == ".jpg" || ext == ".png" || ext == ".jpeg" {
 		err = Bucket.PutObject(objectKey, tempfile)
 		if err != nil {
 			return errors.New("oss上传失败")
 		}
 	} else {
-		loacltemp, err := os.Create(objectKey)
+		loacltemp, err := os.CreateTemp("", "upload_input_*"+ext)
 		if err != nil {
 			return errors.New("生成临时文件失败")
 		}
 		_, err = io.Copy(loacltemp, tempfile)
 		if err != nil {
 			loacltemp.Close()
-			os.Remove(loacltemp.Name())
 			return errors.New("写入临时文件失败")
 		}
-		loacltemp.Close()
-
+		defer os.Remove(loacltemp.Name())
 		err = loacltemp.Sync()
 		if err != nil {
 			os.Remove(loacltemp.Name())
@@ -93,6 +90,7 @@ func UploadFile(objectKey string, file *multipart.FileHeader) error {
 		}
 		cmd := exec.Command("ffmpeg", ffmpegArgs...)
 		err = cmd.Run()
+		defer os.Remove(tempOutputPath)
 		if err != nil {
 			return errors.New("视频压缩失败")
 		}
