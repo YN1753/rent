@@ -115,3 +115,7 @@ func (u *UserHandler) UploadAvatar(c *gin.Context) {
 	}
 	common.Success(c, 200, "上传头像成功", nil)
 }
+
+func (u *UserHandler) GetLocation(c *gin.Context) {
+
+}
