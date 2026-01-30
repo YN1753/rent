@@ -12,6 +12,7 @@ type Config struct {
 	JWT    JWTConfig
 	Redis  RedisConfig
 	Email  EamilConfig
+	Mongo  MongoConfig
 }
 
 type ServerConfig struct {
@@ -35,6 +36,10 @@ type EamilConfig struct {
 	Host     string
 	Username string
 	Password string
+}
+type MongoConfig struct {
+	Uri      string
+	Database string
 }
 
 var Cfg Config

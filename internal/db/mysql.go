@@ -17,6 +17,6 @@ func InitMySQL() *gorm.DB {
 	if err != nil {
 		panic("连接数据库失败")
 	}
-	DB.AutoMigrate(&model.User{})
+	_ = DB.AutoMigrate(&model.User{})
 	return DB
 }
