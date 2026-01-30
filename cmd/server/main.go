@@ -14,11 +14,12 @@ func main() {
 	config.InitConfig()
 	mysqlDB := db.InitMySQL()
 	redisDB := db.InitRedis()
+	mongoDB := db.InitMongo()
 	oss.InitOSS()
 	r := gin.Default()
 	r.Use(middleware.CorsMiddleware())
 	r.Use(gin.Recovery())
-	router.InitRouter(r, mysqlDB, redisDB)
+	router.InitRouter(r, mysqlDB, redisDB, mongoDB)
 	if err := r.Run(":8080"); err != nil {
 		panic(err)
 	}
