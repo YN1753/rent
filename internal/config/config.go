@@ -38,6 +38,10 @@ type EamilConfig struct {
 	Username string
 	Password string
 }
+type MongoConfig struct {
+	Uri      string
+	Database string
+}
 
 type JWTConfig struct {
 	Secret string

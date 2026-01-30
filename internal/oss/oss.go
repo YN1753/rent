@@ -2,7 +2,6 @@ package oss
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
@@ -19,7 +18,7 @@ var Bucket *oss.Bucket
 func InitOSS() {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("加载env失败")
+		panic("加载env失败")
 	}
 	oss_access_key_id := os.Getenv("OSS_ACCESS_KEY_ID")
 	oss_access_key_secret := os.Getenv("OSS_ACCESS_KEY_SECRET")
@@ -27,9 +26,12 @@ func InitOSS() {
 	oss_bucket := os.Getenv("OSS_BUCKET_NAME")
 	Client, err = oss.New(oss_endpoint, oss_access_key_id, oss_access_key_secret)
 	if err != nil {
-		fmt.Println("连接oss失败")
+		panic("连接oss失败")
 	}
 	Bucket, err = Client.Bucket(oss_bucket)
+	if err != nil {
+		panic("连接Bucket失败")
+	}
 }
 
 func CreateSignUrl(objectKey string) ([]string, error) {
