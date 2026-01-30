@@ -1,0 +1,15 @@
+:root {
+  --border-radius: 12px;
+  --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --light-gray: #e5e5e5;
+  --dark-color: #333;
+  --primary-color: #1989fa;
+}
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  background: #f7f8fa;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
