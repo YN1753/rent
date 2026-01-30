@@ -2,15 +2,14 @@ package db
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
 	"rent/internal/config"
-)
 
-var RedisDb *redis.Client
+	"github.com/redis/go-redis/v9"
+)
 
 func InitRedis() *redis.Client {
 	dsn := config.Cfg.Redis
-	RedisDb = redis.NewClient(&redis.Options{
+	RedisDb := redis.NewClient(&redis.Options{
 		Addr:     dsn.Addr,
 		Password: "",
 		DB:       0,

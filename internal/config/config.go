@@ -7,12 +7,13 @@ import (
 )
 
 type Config struct {
-	Server ServerConfig
-	Mysql  MysqlConfig
-	JWT    JWTConfig
-	Redis  RedisConfig
-	Email  EamilConfig
-	Mongo  MongoConfig
+	Server  ServerConfig
+	Mysql   MysqlConfig
+	JWT     JWTConfig
+	Redis   RedisConfig
+	Email   EamilConfig
+	Amap    AmapConfig
+	MongoDB MongoDbConfig
 }
 
 type ServerConfig struct {
@@ -42,11 +43,20 @@ type MongoConfig struct {
 	Database string
 }
 
-var Cfg Config
-
 type JWTConfig struct {
 	Secret string
 }
+
+type AmapConfig struct {
+	Key string
+}
+
+type MongoDbConfig struct {
+	Url  string
+	Port string
+}
+
+var Cfg Config
 
 func InitConfig() {
 	viper.SetConfigName("config")

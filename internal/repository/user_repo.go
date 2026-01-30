@@ -33,23 +33,45 @@ func (u *UserRepository) Register(user model.User) error {
 	return nil
 }
 
-func (u *UserRepository) GetUserInfo(param interface{}) (model.UserInfo, error) {
+func (u *UserRepository) GetUserInfoByEmail(email string) (model.UserInfo, error) {
 	var user model.UserInfo
-	if email, ok := param.(string); ok {
-		err := u.DB.Where("email =?", email).First(&user).Error
-		if err != nil {
-			return user, err
-		}
-		return user, err
-	} else if id, ok := param.(int); ok {
-		err := u.DB.Where("id =?", id).First(&user).Error
-		if err != nil {
-			return user, err
-		}
+	err := u.DB.Where("email =?", email).First(&user).Error
+	if err != nil {
 		return user, err
 	}
+	return user, nil
+}
 
-	return user, errors.New("参数错误")
+func (u *UserRepository) GetUserInfoByUsername(username string) (model.UserInfo, error) {
+	var user model.UserInfo
+	err := u.DB.Where("username =?", username).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
+func (u *UserRepository) GetUserInfoById(id int) (model.UserInfo, error) {
+	var user model.UserInfo
+	err := u.DB.Where("id =?", id).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
+func (u *UserRepository) GetUserInfo(account interface{}) (model.UserInfo, error) {
+	if _, ok := account.(int); ok {
+		return u.GetUserInfoById(account.(int))
+	}
+	fmt.Println(account)
+	if err := validator.New().Var(account, "required,email"); err == nil {
+		email := account.(string)
+		return u.GetUserInfoByEmail(email)
+	} else {
+		username := account.(string)
+		return u.GetUserInfoByUsername(username)
+	}
 }
 
 func (u *UserRepository) GetPasswordByUsername(username string) (string, error) {

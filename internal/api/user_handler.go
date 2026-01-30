@@ -51,6 +51,15 @@ func (u *UserHandler) Login(c *gin.Context) {
 	})
 }
 
+func (u *UserHandler) Logout(c *gin.Context) {
+	token, _ := c.Get("token")
+	if err := u.UserService.Logout(token.(string)); err != nil {
+		common.Error(c, 500, err.Error())
+		return
+	}
+	common.Success(c, 200, "退出登录成功", nil)
+}
+
 func (u *UserHandler) GetUserInfo(c *gin.Context) {
 	id, _ := c.Get("id")
 	var user model.UserInfo
@@ -105,4 +114,8 @@ func (u *UserHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 	common.Success(c, 200, "上传头像成功", nil)
+}
+
+func (u *UserHandler) GetLocation(c *gin.Context) {
+
 }

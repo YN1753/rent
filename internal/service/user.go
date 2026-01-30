@@ -81,11 +81,21 @@ func (u *UserService) Login(user model.LoginRequest) (error, string) {
 		log.Println("生成token失败", err)
 		return errors.New("生成token失败"), token
 	}
+	u.Redis.Set(context.Background(), "token:"+token, token, 24*time.Hour)
 	return nil, token
 }
 
-func (u *UserService) GetUserInfo(param interface{}) (error, model.UserInfo) {
-	user, err := u.UserRepo.GetUserInfo(param)
+func (u *UserService) Logout(token string) error {
+	err := u.Redis.Del(context.Background(), "token:"+token).Err()
+	if err != nil {
+		log.Println("删除token失败", err)
+		return err
+	}
+	return nil
+}
+
+func (u *UserService) GetUserInfo(account interface{}) (error, model.UserInfo) {
+	user, err := u.UserRepo.GetUserInfo(account)
 	log.Println(user)
 	if err != nil {
 		log.Println("获取用户信息失败", err)
