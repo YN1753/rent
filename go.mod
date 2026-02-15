@@ -10,6 +10,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.17.2
 	github.com/spf13/viper v1.21.0
+	github.com/valyala/fastjson v1.6.7
 	github.com/wneessen/go-mail v0.7.2
 	go.mongodb.org/mongo-driver v1.17.7
 	golang.org/x/crypto v0.46.0

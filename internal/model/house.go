@@ -6,14 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Location struct {
-	Province     string `json:"province" bson:"province"`
-	City         string `json:"city" bson:"city"`
-	CityCode     string `json:"cityCode" bson:"cityCode"`
-	District     string `json:"district" bson:"district"`
-	AdCode       string `json:"adCode" bson:"adCode"`
-	ProvinceCode string `json:"provinceCode" bson:"provinceCode"`
-}
 type House struct {
 	Location
 	Id          primitive.ObjectID `bson:"_id,omitempty"`

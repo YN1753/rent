@@ -33,6 +33,7 @@ func NewUserService(db *gorm.DB, rdb *redis.Client) *UserService {
 }
 
 func (u *UserService) Register(user model.User) (error, interface{}) {
+	fmt.Println("注册用户", user.Username)
 	if user.Username == "" || user.Password == "" || user.Email == "" {
 		log.Println("用户名、密码、邮箱不能为空")
 		return errors.New("用户名、密码、邮箱不能为空"), nil
@@ -125,17 +126,17 @@ func (u *UserService) AuthCode(code string, email string) error {
 }
 
 func (u *UserService) GenCode(c *gin.Context, email string) error {
-	username, ok := c.Get("username")
-	if !ok {
-		return errors.New("获取用户名失败")
-	}
-	emailExist, err := u.UserRepo.GetEmailByUsername(username.(string))
-	if err != nil {
-		return errors.New("获取邮箱失败")
-	}
-	if emailExist != email {
-		return errors.New("邮箱错误")
-	}
+	// username, ok := c.Get("username")
+	// if !ok {
+	// 	return errors.New("获取用户名失败")
+	// }
+	// emailExist, err := u.UserRepo.GetEmailByUsername(username.(string))
+	// if err != nil {
+	// 	return errors.New("获取邮箱失败")
+	// }
+	// if emailExist != email {
+	// 	return errors.New("邮箱错误")
+	// }
 	charset := "0123456789"
 	code := make([]byte, 6)
 	n, err := rand.Read(code)

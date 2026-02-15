@@ -5,6 +5,7 @@ import (
 	"rent/internal/model"
 	"rent/internal/service"
 	"rent/pkg/common"
+	"rent/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -81,6 +82,7 @@ func (u *UserHandler) GenAuthCode(c *gin.Context) {
 		common.Error(c, 400, "参数错误")
 		return
 	}
+	fmt.Println("邮箱", email.Email)
 	err := u.UserService.GenCode(c, email.Email)
 	if err != nil {
 		common.Error(c, 400, err.Error())
@@ -116,6 +118,33 @@ func (u *UserHandler) UploadAvatar(c *gin.Context) {
 	common.Success(c, 200, "上传头像成功", nil)
 }
 
-func (u *UserHandler) GetLocation(c *gin.Context) {
+func (u *UserHandler) GetUserLocationByRegeo(c *gin.Context) {
+	var location model.Location
+	var req model.LocationByRegeo
+	if err := c.ShouldBindQuery(&req); err != nil {
+		common.Error(c, 400, "参数错误")
+		return
+	}
+	fmt.Println("请求的参数", req)
+	location, err := utils.GetLocationByRegeo(req)
+	if err != nil {
+		common.Error(c, 500, err.Error())
+		return
+	}
+	common.Success(c, 200, "获取成功", location)
+}
 
+func (u *UserHandler) GetUserLocationBygeo(c *gin.Context) {
+	var req model.LocationByGeo
+	var res model.LocationByRegeo
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.Error(c, 400, "参数错误")
+		return
+	}
+	res, err := utils.GetLocationByGeo(req.Address)
+	if err != nil {
+		common.Error(c, 400, "获取地址失败")
+		return
+	}
+	common.Success(c, 200, "获取成功", res)
 }

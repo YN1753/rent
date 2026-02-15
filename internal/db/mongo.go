@@ -10,10 +10,10 @@ import (
 )
 
 func InitMongo() *mongo.Database {
-	cfg := config.Cfg.Mongo
+	cfg := config.Cfg.MongoDB
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.Uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.Url))
 	if err != nil {
 		panic(err)
 	}
