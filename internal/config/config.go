@@ -52,8 +52,9 @@ type AmapConfig struct {
 }
 
 type MongoDbConfig struct {
-	Url  string
-	Port string
+	Url      string
+	Port     string
+	Database string
 }
 
 var Cfg Config

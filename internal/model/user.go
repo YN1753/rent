@@ -33,7 +33,7 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-type Location struct {
+type LocationReq struct {
 	Longitude float64 `json:"longitude"`
 	Latitude  float64 `json:"latitude"`
 }
