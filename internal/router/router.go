@@ -11,4 +11,5 @@ func InitRouter(g *gin.Engine, db *gorm.DB, rdb *redis.Client, mdb *mongo.Databa
 	// 初始化路由
 	UserRouter(g, db, rdb)
 	HouseRouter(g, mdb, rdb)
+	OrderRouter(g, db)
 }
