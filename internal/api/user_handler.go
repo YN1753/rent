@@ -5,7 +5,7 @@ import (
 	"rent/internal/model"
 	"rent/internal/service"
 	"rent/pkg/common"
-	"rent/pkg/utils"
+	"rent/pkg/utils/location"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -119,19 +119,18 @@ func (u *UserHandler) UploadAvatar(c *gin.Context) {
 }
 
 func (u *UserHandler) GetUserLocationByRegeo(c *gin.Context) {
-	var location model.Location
 	var req model.LocationByRegeo
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Error(c, 400, "参数错误")
 		return
 	}
 	fmt.Println("请求的参数", req)
-	location, err := utils.GetLocationByRegeo(req)
+	res, err := location.GetLocationByRegeo(req)
 	if err != nil {
 		common.Error(c, 500, err.Error())
 		return
 	}
-	common.Success(c, 200, "获取成功", location)
+	common.Success(c, 200, "获取成功", res)
 }
 
 func (u *UserHandler) GetUserLocationBygeo(c *gin.Context) {
@@ -141,7 +140,7 @@ func (u *UserHandler) GetUserLocationBygeo(c *gin.Context) {
 		common.Error(c, 400, "参数错误")
 		return
 	}
-	res, err := utils.GetLocationByGeo(req.Address)
+	res, err := location.GetLocationByGeo(req.Address)
 	if err != nil {
 		common.Error(c, 400, "获取地址失败")
 		return

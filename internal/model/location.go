@@ -34,3 +34,21 @@ type LocationByRegeo struct {
 type LocationByGeo struct {
 	Address string `json:"address"`
 }
+
+type LocationTipReq struct {
+	Keywords string `json:"keywords"`
+}
+
+type LocationTipsRes struct {
+	Locations []string `json:"locations"`
+}
+
+type LocationPOIReq struct {
+	Keywords string `json:"keywords"`
+}
+
+type LocationPOIRes struct {
+	Location
+	LocationByRegeo
+	Name string `json:"name"`
+}

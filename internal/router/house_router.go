@@ -15,5 +15,7 @@ func HouseRouter(g *gin.Engine, mdb *mongo.Database, rdb *redis.Client) {
 	Houserouter.Use(middleware.AuthMiddleware(rdb))
 	{
 		Houserouter.POST("/create", HouseHandler.Create)
+		Houserouter.GET("/location/tips", HouseHandler.GetInputTips)
+		Houserouter.GET("/location/poi", HouseHandler.GetLocationByPOI)
 	}
 }
