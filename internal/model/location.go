@@ -52,3 +52,8 @@ type LocationPOIRes struct {
 	LocationByRegeo
 	Name string `json:"name"`
 }
+
+type GeoPoint struct {
+	Longitude float64 `json:"longitude" form:"longitude"`
+	Latitude  float64 `json:"latitude" form:"latitude"`
+}
