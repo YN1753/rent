@@ -13,7 +13,7 @@ type Config struct {
 	Redis   RedisConfig
 	Email   EamilConfig
 	Amap    AmapConfig
-	MongoDB MongoDbConfig
+	MongoDB MongoConfig
 }
 
 type ServerConfig struct {
@@ -39,7 +39,7 @@ type EamilConfig struct {
 	Password string
 }
 type MongoConfig struct {
-	Uri      string
+	Url      string
 	Database string
 }
 
@@ -49,12 +49,6 @@ type JWTConfig struct {
 
 type AmapConfig struct {
 	Key string
-}
-
-type MongoDbConfig struct {
-	Url      string
-	Port     string
-	Database string
 }
 
 var Cfg Config

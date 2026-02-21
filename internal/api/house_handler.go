@@ -4,6 +4,7 @@ import (
 	"rent/internal/model"
 	"rent/internal/service"
 	"rent/pkg/common"
+	"rent/pkg/utils/location"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -34,4 +35,32 @@ func (h *HouseHandler) Create(c *gin.Context) {
 		common.Error(c, 400, err.Error())
 	}
 	common.Success(c, 200, "创建成功", nil)
+}
+
+func (h *HouseHandler) GetInputTips(c *gin.Context) {
+	var tips model.LocationTipsRes
+	var req model.LocationTipReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.Error(c, 400, "参数错误")
+	}
+	tips, err := location.GetLocationTips(req.Keywords)
+	if err != nil {
+		common.Error(c, 400, err.Error())
+		return
+	}
+	common.Success(c, 200, "获取成功", tips)
+}
+
+func (h *HouseHandler) GetLocationByPOI(c *gin.Context) {
+	var req model.LocationPOIReq
+	var res []model.LocationPOIRes
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.Error(c, 400, "参数错误")
+	}
+	res, err := location.GetLocationByPOI(req.Keywords)
+	if err != nil {
+		common.Error(c, 400, "获取地址失败")
+		return
+	}
+	common.Success(c, 200, "获取成功", res)
 }

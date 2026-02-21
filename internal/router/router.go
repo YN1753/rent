@@ -10,5 +10,5 @@ import (
 func InitRouter(g *gin.Engine, db *gorm.DB, rdb *redis.Client, mdb *mongo.Database) {
 	// 初始化路由
 	UserRouter(g, db, rdb)
-	HouseRouter(g, mdb)
+	HouseRouter(g, mdb, rdb)
 }

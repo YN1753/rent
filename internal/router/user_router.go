@@ -15,9 +15,10 @@ func UserRouter(c *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 	{
 		userRouter.POST("/register", userHandler.Register)
 		userRouter.POST("/login", userHandler.Login)
-		userRouter.GET("/gencode", userHandler.GenAuthCode)
+		userRouter.POST("/gencode", userHandler.GenAuthCode)
 		userRouter.POST("/authcode", userHandler.AuthCode)
-		userRouter.GET("/location", userHandler.GetLocation)
+		userRouter.GET("/location/regeo", userHandler.GetUserLocationByRegeo)
+		userRouter.GET("/location/geo", userHandler.GetUserLocationBygeo)
 	}
 	userRouterAuth := userRouter
 	{

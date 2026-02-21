@@ -6,15 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type GeoPoint struct {
-	Type        string    `bson:"type"`        // 必须是 "Point"
-	Coordinates []float64 `bson:"coordinates"` // [经度, 纬度]
-}
-type Location struct {
-	Province string `json:"province" bson:"province"`
-	City     string `json:"city" bson:"city"`
-	District string `json:"district" bson:"district"`
-}
 type House struct {
 	Location
 	Id          primitive.ObjectID `bson:"_id,omitempty"`
