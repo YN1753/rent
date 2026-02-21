@@ -32,7 +32,7 @@ func (h *HouseRepository) Create(house model.House, ctx context.Context) error {
 }
 func (h *HouseRepository) Update(house model.House, ctx context.Context) error {
 	collection := h.Mongo.Collection("house")
-	_, err := collection.UpdateByID(ctx, house.Id, house)
+	_, err := collection.UpdateOne(ctx, house.Id, house)
 	if err != nil {
 		return errors.New("更新失败")
 	}
