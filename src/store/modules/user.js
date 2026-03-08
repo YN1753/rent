@@ -13,7 +13,12 @@ export const useUserStore = defineStore('user', {
     // 登录
     async login(credentials) {
       try {
-        const res = await loginAPI(credentials)
+        // 
+        const loginData = {
+          account: credentials.username,
+          passward: credentials.password
+        }
+        const res = await loginAPI(loginData)
         this.token = res.data.token
         localStorage.setItem('token', res.data.token)
 

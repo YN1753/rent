@@ -1,4 +1,3 @@
-<!-- version 2 --
 <!-- 注册页面 -->
 <template>
   <div class="modal-overlay" @click="close">
@@ -104,10 +103,30 @@ const startCountDown = () => {
     if (countDown.value <= 0) clearInterval(timer);
   }, 1000);
 };
-
+// 表单验证函数
+const validateForm = () => {
+  if (!form.value.username.trim()) {
+    alert('请输入用户名')
+    return false
+  }
+  if (form.value.password.length < 6) {
+    alert('密码至少6位')
+    return false
+  }
+  if (!form.value.code) {
+    alert('请输入验证码')
+    return false
+  }
+  // 校验邮箱格式
+  if (!isEmail(form.value.email)) {
+    alert('请输入正确的邮箱')
+    return false
+  }
+  return true
+}
 // 注册提交
 const onSubmit = async () => {
-  // 先校验验证码
+  if (!validateForm()) return // ← 提前退出
   try {
     await verifyCodeAPI({ email: form.value.email, code: form.value.code })
   } catch (e) {
@@ -115,7 +134,12 @@ const onSubmit = async () => {
     return
   }
   // 校验通过再注册
-  const ok = await userStore.register(form.value)
+  const registerData = {
+    username: form.value.username,
+    email: form.value.email,
+    password: form.value.password
+  }
+  const ok = await userStore.register(registerData)
   if (ok) {
     close()
   } else {
